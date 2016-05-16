@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Text;
 using HtmlAgilityPack;
@@ -42,18 +43,48 @@ namespace RankOne.Business.Services
                     Analysis = keywordAnalyzer.GetAnalysis()
                 });
 
-                var performanceAnalyzer = new PerformanceSummary(webpage.HtmlResult);
-                webpage.AnalyzerResults.Add(new AnalyzerResult
+                if (url.Contains("localhost"))
                 {
-                    Alias = "performanceanalyzer",
-                    Analysis = performanceAnalyzer.GetAnalysis()
-                });
+                    UseCustomImplementation(webpage);
+                }
+                else
+                {
+                    try
+                    {
+                        // User google implementation
+                        UseGoogleImplementation(webpage);
+                    }
+                    catch (Exception)
+                    {
+                        UseCustomImplementation(webpage);
+                    }
+                }
             }
             catch (WebException ex)
             {
                 webpage.Status = ((HttpWebResponse)ex.Response).StatusCode;
             }
             return webpage;
+        }
+
+        private void UseGoogleImplementation(PageAnalysis webpage)
+        {
+            var googleSpeedService = new GoogleSpeedService(webpage);
+            webpage.AnalyzerResults.Add(new AnalyzerResult
+            {
+                Alias = "googleperformanceanalyzer",
+                Analysis = googleSpeedService.GetAnalysis()
+            });
+        }
+
+        private void UseCustomImplementation(PageAnalysis webpage)
+        {
+            var performanceAnalyzer = new PerformanceSummary(webpage.HtmlResult);
+            webpage.AnalyzerResults.Add(new AnalyzerResult
+            {
+                Alias = "performanceanalyzer",
+                Analysis = performanceAnalyzer.GetAnalysis()
+            });
         }
 
         private HtmlResult GetHtml(string url)
@@ -75,7 +106,7 @@ namespace RankOne.Business.Services
                 Size = Encoding.ASCII.GetByteCount(html),
                 ServerResponseTime = stopwatch.ElapsedMilliseconds,
                 Document = _htmlParser.DocumentNode
-        };
+            };
         }
     }
 }

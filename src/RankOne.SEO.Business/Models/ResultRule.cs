@@ -8,6 +8,8 @@ namespace RankOne.Business.Models
 
         public string Code { get; set; }
 
+        public string Text { get; set; }
+
         public List<string> Tokens { get; set; }
 
         public ResultRule()

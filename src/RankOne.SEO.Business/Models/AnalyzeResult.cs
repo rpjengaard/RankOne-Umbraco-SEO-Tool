@@ -2,19 +2,10 @@
 
 namespace RankOne.Business.Models
 {
-    public class AnalyzeResult
+    public class GoogleAnalyzeResult:AnalyzeResult
     {
-        public AnalyzeResult()
-        {
-            ResultRules = new List<ResultRule>();
-        }
 
-        public string Alias { get; set; }
-        public List<ResultRule> ResultRules { get; set; }
-
-        public void AddResultRule(string code, string type)
-        {
-            ResultRules.Add(new ResultRule { Code = code, Type = type });
-        }
+        public string Name { get; set; }
+        public string Description { get; set; }
     }
 }
